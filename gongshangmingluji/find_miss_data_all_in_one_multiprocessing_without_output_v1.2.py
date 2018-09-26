@@ -138,40 +138,43 @@ def getmaxnode(area):
     return 0
         
 def mixfile():
+    filedict = dict()
     files = os.listdir()
     files = list(files)
+    read_file = 0
     for file in files:
         if file[:9] == "miss_data":
+            read_file += 1
+            if read_file % 20 == 0:
+                for filename,itemlist in filedict:
+                    try:
+                        with open(filename,'r',encoding='utf8') as f1:
+                            reader1 = list(csv.reader(f1))
+                            filedict[filename].extend(reader1)
+
+                    except:
+                        print('创建文件{}'.format(filename))
+                    filelist.sort(key=lambda x:int(x[-1]))
+                    with open(filename[3:],'w',encoding='utf8',newline='') as f1:
+                        writer = csv.writer(f1)
+                        for i in itemlist:
+                            writer.writerow(i)
+                    with open(filename,'w',encoding='utf8',newline='') as f1:
+                        writer = csv.writer(f1)
+                        for i in itemlist:
+                            writer.writerow(i)
+                filedict = {}
             with open(file,encoding="utf8") as f:
                 reader = list(csv.reader(f))
                 for row in reader:
                     if row[0]:
                         num = row[-1]
                         filename = 'utf' + str(int(num) + 1000 -1 - ((int(num) + 1000 -1)%1000)) + '.csv'
-                        reader1 = reader
-                        try:
-                            with open(filename,'r',encoding='utf8') as f1:
-                                reader1 = list(csv.reader(f1))
-                                length = len(reader1)
-                                temp = []
-                                if len(reader1) < 1001:
-                                    temp = [['']*8 for i in range(1000 - length)]
-                                    reader1.extend(temp)
+                        filedict.setdefault(filename,[])
+                        filedict[filename].append(row)
+                        
 
-                                reader1[(int(num)%1000)-1] = row
 
-                        except:
-                            reader1[(int(num)%1000)-1] = row
-                            print('创建文件{}'.format(filename))
-
-                        with open(filename[3:],'w',encoding='utf8',newline='') as f1:
-                            writer = csv.writer(f1)
-                            for i in reader1:
-                                writer.writerow(i)
-                        with open(filename,'w',encoding='utf8',newline='') as f1:
-                            writer = csv.writer(f1)
-                            for i in reader1:
-                                writer.writerow(i)
 
 
 def geturl(process,misslist,counterstart,counter,area):
